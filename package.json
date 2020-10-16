@@ -1,4 +1,5 @@
 {
+  "name": "cloistered-lake",
   "devDependencies": {
     "coffeescript": "^2.5.1"
   }
