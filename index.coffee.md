@@ -105,7 +105,7 @@ We also are an async iterable, which means we can also be turned into a stream:
         {stream} = this
         Lake do ->
           f = null
-          for await [chunk,index] from __merge stream, funs
+          for await [chunk,index] from mergeArray [stream, funs]
             switch index
               when 0
                 yield f? chunk
@@ -116,11 +116,11 @@ We also are an async iterable, which means we can also be turned into a stream:
       switchLatest: ->
         stream = this
         Lake do ->
-          current = __merge stream
+          current = mergeArray [stream]
           while [chunk,index] = await current.next()
             switch index
               when 0
-                current = __merge stream, chunk
+                current = mergeArray [stream, chunk]
               when 1
                 yield chunk
           return
@@ -155,6 +155,7 @@ Takes iterators or async iterators, returns an asyncIterator
     #* @return asyncIterator
 
     mergeArray = (streams) ->
+
       queueNext = (e) ->
         e.result = null # Release previous one as soon as possible
         e.result = await e.stream.next()
@@ -186,10 +187,14 @@ Yes, drop it from sources
 
         else
 
-No, grab the value to yield and queue up the next Then yield the value
+No, grab the value to yield and queue up the next
 
           {value} = winner.result
           sources.set winner.stream, queueNext winner
+
+Then yield the value and the index of the stream it came from
+(the index in the index in the original `streams` parameter array).
+
           yield [value,winner.index]
 
 Rotate the sources (forcing Promise.all to round-robin over them)
