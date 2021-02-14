@@ -1,6 +1,11 @@
 {
-  "name": "cloistered-lake",
+  "name": "@shimaore/lake",
   "devDependencies": {
     "coffeescript": "^2.5.1"
+  },
+  "scripts": {
+    "build": "coffee -b -l -p index.coffee.md > index.mjs",
+    "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e s/'@shimaore\\/lake'/'.\\/index.mjs'/  > test.mjs",
+    "test": "node test.mjs"
   }
 }

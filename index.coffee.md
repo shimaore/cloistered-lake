@@ -1,14 +1,18 @@
     sleep = (timeout) -> new Promise (resolve) -> setTimeout resolve, timeout
 
+An Async Iterator that behaves as a Readable Stream and supports Monadic Event
+Stream patterns, using only native operators.
+
     class LakeAsyncIterator
 
       constructor: (@stream) ->
 
-We can be used as a proxy for the iterator, turning it into an async iterator
+We can be used as a proxy for the original iterator, turning it into an async
+iterator:
 
       next: -> await @stream.next()
 
-We also are an iterable
+We also are an async iterable, which means we can also be turned into a stream:
 
       [Symbol.asyncIterator]: -> return new LakeAsyncIterator this
 
@@ -28,18 +32,22 @@ We also are an iterable
             yield chunk if await f chunk
           return
 
-      skipRepeats: ->
+      skipRepeats: -> @skipRepeatsWith (a,b) -> a is b
+
+      skipRepeatsWith: (equals) ->
         {stream} = this
         Lake do ->
           for await chunk from stream
-            yield chunk unless chunk is last
+            yield chunk unless equals chunk, last
             last = chunk
           return
 
       first: (max) ->
         {stream} = this
+        n = 0n
+        max = BigInt max
         Lake do ->
-          n = 0n
+          return if n >= max
           for await chunk from stream
             return if n++ >= max
             yield chunk
@@ -49,19 +57,20 @@ We also are an iterable
 
       skip: (n) ->
         {stream} = this
+        n = BigInt n
         Lake do ->
-          n = BigInt n
+          return if n <= 0
           for await chunk from stream
-            return if n-- <= 0
-            yield chunk
+            if n-- <= 0
+              yield chunk
           return
 
       delay: (timeout) ->
         {stream} = this
         Lake do ->
           for await chunk from stream
-            yield chunk
             await sleep timeout
+            yield chunk
           return
 
       startWith: (another) ->
@@ -116,14 +125,13 @@ We also are an iterable
                 yield chunk
           return
 
-      join: ->
-
-
       reduce: (f,a) ->
         {stream} = this
         for await chunk from stream
           a = await f a, chunk
         return a
+
+Consumes a stream, throwing away values; returns a Promise
 
       run: ->
         {stream} = this
@@ -131,9 +139,12 @@ We also are an iterable
           no
         return
 
+Consumes two streams; returns a Promise that is true if both stream yield
+the same values
 
-    Lake = (stream) -> new LakeAsyncIterator stream
+      equals: (otherStream) -> equals this, otherStream
 
+    export Lake = (stream) -> new LakeAsyncIterator stream
 
 Based on https://stackoverflow.com/questions/50585456/how-can-i-interleave-merge-async-iterables
 The main difference is that we rotate the sources list in order to help
@@ -181,24 +192,30 @@ No, grab the value to yield and queue up the next Then yield the value
           sources.set winner.stream, queueNext winner
           yield [value,winner.index]
 
-Rotate the sources
+Rotate the sources (forcing Promise.all to round-robin over them)
 
         srcs.unshift srcs.pop()
 
       return
 
-    merge = (streams...) ->
+    Merge = (streams...) ->
       for await [chunk] from mergeArray streams
         yield chunk
       return
 
+    export merge = (streams...) -> Lake Merge streams...
+
     Empty = ->
       return
+
+    export empty = -> Lake Empty()
 
     Always = (v) ->
       while true
         yield v
       return
+
+    export always = -> Lake Always v
 
     BigNaturals = ->
       n = 0n
@@ -206,35 +223,39 @@ Rotate the sources
         yield n++
       return
 
+    export bigNaturals = -> Lake BigNaturals()
+
     Periodic = (period) ->
       while true
         yield undefined
         await sleep period
       return
 
+    export periodic = (period) -> Lake Periodic period
+
     Now = (v) ->
       yield v
 
-    throwError = (error) ->
+    export now = (v) -> Lake Now v
+
+    From = (a) ->
+      for await v from a
+        yield v
+      return
+
+    export from = (a) -> Lake From a
+
+    ThrowError = (error) ->
       throw error
       yield undefined
 
-    Sum = (a,v) -> a+v
+    export throwError = (e) -> Lake ThrowError e
 
-    no and do ->
-      console.log await (
-        (Lake Lake Lake do BigNaturals)
-        .map (x) -> x*x
-        .first 4n
-        .forEach console.log
-        .reduce Sum, 0n
-      )
-
-    do ->
-      M = Lake merge (Lake do BigNaturals), (Lake do BigNaturals).map (x) -> -x
-      console.log "Example 2", M
-      await (Lake M)
-        .forEach console.log
-        .run()
-      # console.log 'got', v for await v from M
-      console.log "Exampl 2 started"
+    export equals = (A,B) ->
+      loop
+        a = await A.next()
+        b = await B.next()
+        return true if a.done and b.done
+        return false if a.done isnt b.done
+        return false if a.value isnt b.value
+      return
