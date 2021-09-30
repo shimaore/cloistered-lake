@@ -197,7 +197,7 @@ Then yield the value and the index of the stream it came from
 
           yield [value,winner.index]
 
-Rotate the sources (forcing Promise.all to round-robin over them)
+Rotate the sources (forcing Promise.race to round-robin over them)
 
         srcs.unshift srcs.pop()
 
