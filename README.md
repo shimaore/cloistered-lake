@@ -47,16 +47,17 @@ negative) from naturals (positive only):
       [0,-1,1,-2,2,-3,3,-4,4,-5,5,-6,6,-7,7,-8,8,-9,9,-10].map(BigInt)
     )
 
-    import assert from 'assert';
-    (async function() {
-    assert(await
+    import test from 'ava';
+    test('Compute first twenty integers', async t => {
+      t.true(await
 
-      BigIntegers
-      .first(20)
+        BigIntegers
+        .first(20)
 
-      .equals( firstTwentyIntegers )
+        .equals( firstTwentyIntegers )
 
-    )})()
+      )
+    })
 
 Notice how `first` and `equals` are methods on the stream.
 
@@ -65,16 +66,15 @@ Another example, building the sum of the first 1000 squares in constant space:
 
     const Sum = (a,v) => a+v
 
-    (async function() {
-      assert.equal( 333_833_500n, await (
+    test('Compute the sum of the first 1000 squares', async t => {
+      t.is( 333_833_500n, await
 
-        (Lake(Lake(bigNaturals())))
+        bigNaturals()
         .skip(1)
         .map( x => x*x )
         .first(1000n)
         .reduce(Sum, 0n)
 
-      ))
-    })()
-
+      )
+    })
 
