@@ -2,3 +2,8 @@ node_modules/
 test.mjs
 .git
 thousand-squares.txt
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
