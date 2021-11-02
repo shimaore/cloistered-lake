@@ -2,14 +2,14 @@
   "name": "@shimaore/lake",
   "devDependencies": {
     "ava": "^3.15.0",
-    "coffeescript": "^2.5.1"
+    "coffeescript": "^2.6.1"
   },
   "scripts": {
     "build": "coffee -b -l -p index.coffee.md > index.mjs",
-    "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e s/'@shimaore\\/lake'/'.\\/index.mjs'/  > test.mjs",
+    "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "functional async generators toolbox",
   "main": "index.mjs",
   "repository": "gitlab.com/shimaore/cloistered-lake",

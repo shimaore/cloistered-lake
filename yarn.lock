@@ -100,7 +100,7 @@ __metadata:
   resolution: "@shimaore/lake@workspace:."
   dependencies:
     ava: ^3.15.0
-    coffeescript: ^2.5.1
+    coffeescript: ^2.6.1
   languageName: unknown
   linkType: soft
 
@@ -715,13 +715,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"coffeescript@npm:^2.5.1":
-  version: 2.6.0
-  resolution: "coffeescript@npm:2.6.0"
+"coffeescript@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "coffeescript@npm:2.6.1"
   bin:
     cake: bin/cake
     coffee: bin/coffee
-  checksum: 2b44693e74cb3561415a682960366d893f114aa1eff03e01757a10dea3a5a40e800891c4e6ca84fc38c518db48306e51c73fd09fa95c9cf57844207b5edc8c9b
+  checksum: c53db08b1baa7405b6c549fad5c28dd88eeb5f04c98a1eb495788205f1785789c4af22cb65343047f8b717f53b88293047450708cb92d4ea3b58d0cec0df7338
   languageName: node
   linkType: hard
 
