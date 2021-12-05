@@ -231,6 +231,22 @@ Consumes this stream, throwing away values; returns a Promise.
 
 The Promise will reject if the stream fails for any reason.
 
+## .last()
+
+Consumes this stream, returning its last value (or undefined if no value was
+produced) inside a Promise.
+
+    test('Retrieve the 14th BigInt', async t => {
+      t.is(14n, await
+
+        bigNaturals()
+        .skip(1) // skip 0
+        .first(14)
+        .last()
+
+      )
+    })
+
 ## .equals(otherStream)
 ## .equals(otherStream,isEqual)
 

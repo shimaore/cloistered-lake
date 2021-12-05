@@ -303,6 +303,20 @@ LakeAsyncIterator = class LakeAsyncIterator {
     }
   }
 
+  // ## .last()
+
+    // Consumes this stream, returning its last value (or undefined if no value was
+  // produced) inside a Promise.
+  async last() {
+    var chunk, last, stream;
+    ({stream} = this);
+    last = void 0;
+    for await (chunk of stream) {
+      last = chunk;
+    }
+    return last;
+  }
+
   // ## .equals(otherStream)
   // ## .equals(otherStream,isEqual)
 

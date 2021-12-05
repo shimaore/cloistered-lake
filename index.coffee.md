@@ -227,6 +227,18 @@ The Promise will reject if the stream fails for any reason.
           no
         return
 
+## .last()
+
+Consumes this stream, returning its last value (or undefined if no value was
+produced) inside a Promise.
+
+      last: ->
+        {stream} = this
+        last = undefined
+        for await chunk from stream
+          last = chunk
+        last
+
 ## .equals(otherStream)
 ## .equals(otherStream,isEqual)
 
