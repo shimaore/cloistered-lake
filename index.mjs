@@ -279,7 +279,7 @@ LakeAsyncIterator = class LakeAsyncIterator {
 
   // ## .reduce(reducer,accumulator)
 
-    // Using a (sync or async) `reducer` function which accepts the last value of the
+    // Using a (sync or async) `reducer` function which accepts the latest value of the
   // accumulator and a new value, returns the final value of the accumulator.
   async reduce(f, a) {
     var chunk, stream;
