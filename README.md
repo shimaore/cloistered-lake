@@ -39,7 +39,7 @@ negative) from naturals (positive only):
     import {merge,from} from '@shimaore/lake'
 
 Merging streams is done in approximate round-robin fashion; this prevents one
-stream from eagerly preventing other stream to progress.
+stream from eagerly blocking other stream.
 
     const BigIntegers = merge(
       // will enumerate 1, 2, 3, 4, …
@@ -96,7 +96,7 @@ maximum number of concurrent executions.
       return x*x
     }
 
-    test('Compute the sum of the first 1000 squares using parallelize', async t => {
+    test('Compute the sum of the first 1000 squares using concurrentMap', async t => {
       console.time('with parallelize')
       t.is( 333_833_500n, await
 
@@ -110,7 +110,7 @@ maximum number of concurrent executions.
       console.timeEnd('with parallelize')
     })
 
-    test('Compute the sum of the first 1000 squares without parallelize', async t => {
+    test('Compute the sum of the first 1000 squares without concurrentMap', async t => {
       console.time('without parallelize')
       t.is( 333_833_500n, await
 
