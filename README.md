@@ -273,7 +273,7 @@ and incrementing by 1 at each step.
 # periodic(period,value)
 
 Builds a stream that generates a new element with the provided value (or
-undefined if no value is provided) and geneates similarly every `period`
+undefined if no value is provided) and generates similarly every `period`
 milliseconds thereafter.
 
 # now(v)
