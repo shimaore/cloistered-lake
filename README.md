@@ -97,7 +97,7 @@ maximum number of concurrent executions.
     }
 
     test('Compute the sum of the first 1000 squares using concurrentMap', async t => {
-      console.time('with parallelize')
+      console.time('with concurrentMap')
       t.is( 333_833_500n, await
 
         bigNaturals()
@@ -107,11 +107,11 @@ maximum number of concurrent executions.
         .reduce(Sum, 0n)
 
       )
-      console.timeEnd('with parallelize')
+      console.timeEnd('with concurrentMap')
     })
 
     test('Compute the sum of the first 1000 squares without concurrentMap', async t => {
-      console.time('without parallelize')
+      console.time('without concurrentMap')
       t.is( 333_833_500n, await
 
         bigNaturals()
@@ -121,7 +121,7 @@ maximum number of concurrent executions.
         .reduce(Sum, 0n)
 
       )
-      console.timeEnd('without parallelize')
+      console.timeEnd('without concurrentMap')
     })
 
 Tests
