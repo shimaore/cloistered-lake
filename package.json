@@ -9,7 +9,7 @@
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs"
   },
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "functional async generators toolbox",
   "main": "index.mjs",
   "repository": "gitlab.com/shimaore/cloistered-lake",
