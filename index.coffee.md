@@ -416,7 +416,7 @@ and incrementing by 1 at each step.
 # periodic(period,value)
 
 Builds a stream that generates a new element with the provided value (or
-undefined if no value is provided) and geneates similarly every `period`
+undefined if no value is provided) and generates similarly every `period`
 milliseconds thereafter.
 
     Periodic = (period,value=undefined) ->
@@ -450,7 +450,11 @@ Builds a stream that stops immediately with the provided error.
 
 From any iterable, generates a new "Lake" stream (described above).
 
-The iterable might be an Array, an iterator, a ReadableStream, …
+The iterable might be an Array, an iterator, an AsyncIterator,
+a [ReadableStream](https://nodejs.org/dist/latest/docs/api/stream.html#readablesymbolasynciterator), …
+
+Use Node.js' [`events.on(emitter,eventName)`](https://nodejs.org/dist/latest/docs/api/events.html#eventsonemitter-eventname-options)
+to create an AsyncIterator from an event-emitter.
 
     From = (a) ->
       for await v from a

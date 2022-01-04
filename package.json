@@ -1,7 +1,7 @@
 {
   "name": "@shimaore/lake",
   "devDependencies": {
-    "ava": "^3.15.0",
+    "ava": "^4.0.0",
     "coffeescript": "^2.6.1"
   },
   "scripts": {

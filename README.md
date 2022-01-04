@@ -288,7 +288,11 @@ Builds a stream that stops immediately with the provided error.
 
 From any iterable, generates a new "Lake" stream (described above).
 
-The iterable might be an Array, an iterator, a ReadableStream, …
+The iterable might be an Array, an iterator, an AsyncIterator,
+a [ReadableStream](https://nodejs.org/dist/latest/docs/api/stream.html#readablesymbolasynciterator), …
+
+Use Node.js' [`events.on(emitter,eventName)`](https://nodejs.org/dist/latest/docs/api/events.html#eventsonemitter-eventname-options)
+to create an AsyncIterator from an event-emitter.
 
 # equals(streamA,streamB)
 # equals(streamA,streamB,isEqual)
