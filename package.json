@@ -2,10 +2,12 @@
   "name": "@shimaore/lake",
   "devDependencies": {
     "ava": "^4.0.0",
-    "coffeescript": "^2.6.1"
+    "coffeescript": "^2.6.1",
+    "rollup": "^2.63.0"
   },
   "scripts": {
     "build": "coffee -b -l -p index.coffee.md > index.mjs",
+    "build:cjs": "rollup index.mjs --file index.cjs --format cjs",
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs"
   },
@@ -13,6 +15,7 @@
   "description": "functional async generators toolbox",
   "type": "module",
   "module": "index.mjs",
+  "main": "index.cjs",
   "types": "index.d.ts",
   "repository": "gitlab.com/shimaore/cloistered-lake",
   "author": "Stephane Alnet <stephane@shimaore.net>",

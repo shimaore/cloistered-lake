@@ -1,6 +1,10 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
 var Always, BigNaturals, ConcurrentMap, Empty, From, LakeAsyncIterator, Merge, Now, Periodic, ThrowError, concurrentize, isIdentical, mergeArray;
 
-export var sleep = function(timeout, value = void 0) {
+var sleep = function(timeout, value = void 0) {
   return new Promise(function(resolve) {
     return setTimeout((function() {
       return resolve(value);
@@ -299,7 +303,6 @@ LakeAsyncIterator = class LakeAsyncIterator {
     var chunk, stream;
     ({stream} = this);
     for await (chunk of stream) {
-      false;
     }
   }
 
@@ -331,7 +334,7 @@ LakeAsyncIterator = class LakeAsyncIterator {
 
 };
 
-export var Lake = function(stream) {
+var Lake = function(stream) {
   return new LakeAsyncIterator(stream);
 };
 
@@ -394,7 +397,7 @@ Merge = async function*(...streams) {
   }
 };
 
-export var merge = function(...streams) {
+var merge = function(...streams) {
   return Lake(Merge(...streams));
 };
 
@@ -407,11 +410,10 @@ export var merge = function(...streams) {
 //* @param stream: AsyncIterable<Promise>
 //* @param atmost : integer
 concurrentize = async function*(stream, atmost, fun) {
-  var awaitNext, completed, done, index, key, nextKey, pick, pool;
+  var awaitNext, done, index, key, nextKey, pick, pool;
   pool = new Map();
   index = 0n;
   done = false;
-  completed = 0n;
   nextKey = function() {
     index += 1n;
     return index.toString();
@@ -440,7 +442,6 @@ concurrentize = async function*(stream, atmost, fun) {
     if (pick.result.done) {
       done = true;
     } else {
-      completed++;
       yield pick.result.value;
     }
   }
@@ -454,7 +455,7 @@ ConcurrentMap = async function*(stream, atmost, fun) {
   }
 };
 
-export var concurrentMap = function(stream, atmost, fun) {
+var concurrentMap = function(stream, atmost, fun) {
   return Lake(ConcurrentMap(stream, atmost, fun));
 };
 
@@ -463,7 +464,7 @@ export var concurrentMap = function(stream, atmost, fun) {
 // Builds a stream that finishes immediately.
 Empty = function() {};
 
-export var empty = function() {
+var empty = function() {
   return Lake(Empty());
 };
 
@@ -476,7 +477,7 @@ Always = function*(v) {
   }
 };
 
-export var always = function() {
+var always = function() {
   return Lake(Always(v));
 };
 
@@ -492,7 +493,7 @@ BigNaturals = function*() {
   }
 };
 
-export var bigNaturals = function() {
+var bigNaturals = function() {
   return Lake(BigNaturals());
 };
 
@@ -509,7 +510,7 @@ Periodic = async function*(period, value = void 0) {
   }
 };
 
-export var periodic = function(period) {
+var periodic = function(period) {
   return Lake(Periodic(period));
 };
 
@@ -520,7 +521,7 @@ Now = function*(v) {
   return (yield v);
 };
 
-export var now = function(v) {
+var now = function(v) {
   return Lake(Now(v));
 };
 
@@ -529,10 +530,9 @@ export var now = function(v) {
 // Builds a stream that stops immediately with the provided error.
 ThrowError = function*(error) {
   throw error;
-  return (yield void 0);
 };
 
-export var throwError = function(e) {
+var throwError = function(e) {
   return Lake(ThrowError(e));
 };
 
@@ -552,7 +552,7 @@ From = async function*(a) {
   }
 };
 
-export var from = function(a) {
+var from = function(a) {
   return Lake(From(a));
 };
 
@@ -564,7 +564,7 @@ export var from = function(a) {
 
 // The optional (sync or async) `isEqual` function should return true to indicate
 // that its two arguments are considered identical.
-export var equals = async function(A, B, eq = isIdentical) {
+var equals = async function(A, B, eq = isIdentical) {
   var a, b;
   while (true) {
     a = (await A.next());
@@ -580,3 +580,16 @@ export var equals = async function(A, B, eq = isIdentical) {
     }
   }
 };
+
+exports.Lake = Lake;
+exports.always = always;
+exports.bigNaturals = bigNaturals;
+exports.concurrentMap = concurrentMap;
+exports.empty = empty;
+exports.equals = equals;
+exports.from = from;
+exports.merge = merge;
+exports.now = now;
+exports.periodic = periodic;
+exports.sleep = sleep;
+exports.throwError = throwError;
