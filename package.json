@@ -3,11 +3,11 @@
   "devDependencies": {
     "ava": "^4.0.0",
     "coffeescript": "^2.6.1",
-    "rollup": "^2.63.0"
+    "esbuild": "^0.14.11"
   },
   "scripts": {
     "build": "coffee -b -l -p index.coffee.md > index.mjs",
-    "build:cjs": "rollup index.mjs --file index.cjs --format cjs",
+    "build:cjs": "esbuild --outfile=index.cjs index.mjs --format=cjs",
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs"
   },
