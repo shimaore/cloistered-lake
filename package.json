@@ -11,7 +11,7 @@
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs"
   },
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "functional async generators toolbox",
   "type": "module",
   "module": "index.mjs",
