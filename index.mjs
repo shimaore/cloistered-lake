@@ -12,7 +12,7 @@ isIdentical = function(a, b) {
   return a === b;
 };
 
-// # Lake(stream|iterator)
+// # Lake(iterable|asynciterable)
 
   // An Async Iterator that behaves as a Readable Stream and supports Monadic Event
 // Stream patterns, using only native operators.
@@ -21,13 +21,13 @@ LakeAsyncIterator = class LakeAsyncIterator {
     this.stream = stream1;
   }
 
-  // It can be used as a proxy for the original (sync or async) iterator, turning it
+  // It can be used as a proxy for the original (sync or async) iterable, turning it
   // into an async iterator.
   async next() {
     return (await this.stream.next());
   }
 
-  // It also is an async iterable, which means it can be turned into a stream.
+  // It also is an async iterable, which means it can be turned back into a stream.
   [Symbol.asyncIterator]() {
     return new LakeAsyncIterator(this);
   }
@@ -536,7 +536,7 @@ export var throwError = function(e) {
   return Lake(ThrowError(e));
 };
 
-// # from(iterable)
+// # from(iterable|asynciterable)
 
 // From any iterable, generates a new "Lake" stream (described above).
 

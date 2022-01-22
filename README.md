@@ -86,7 +86,7 @@ Building the sum of the first 1000 squares in constant space:
 Concurrent Map
 ==============
 
-Use Concurrent Map to process async calls concurrently while controlling the
+Use Concurrent Map to process async operations concurrently while controlling the
 maximum number of concurrent executions.
 
     import {sleep} from '@shimaore/lake'
@@ -136,15 +136,15 @@ yarn install && yarn test
 API
 ===
 
-# Lake(stream|iterator)
+# Lake(iterable|asynciterable)
 
 An Async Iterator that behaves as a Readable Stream and supports Monadic Event
 Stream patterns, using only native operators.
 
-It can be used as a proxy for the original (sync or async) iterator, turning it
+It can be used as a proxy for the original (sync or async) iterable, turning it
 into an async iterator.
 
-It also is an async iterable, which means it can be turned into a stream.
+It also is an async iterable, which means it can be turned back into a stream.
 
 ## .map(transform)
 
@@ -284,7 +284,7 @@ Builds a stream that only produces once, with the value provided.
 
 Builds a stream that stops immediately with the provided error.
 
-# from(iterable)
+# from(iterable|asynciterable)
 
 From any iterable, generates a new "Lake" stream (described above).
 

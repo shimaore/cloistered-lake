@@ -3,7 +3,7 @@
 
     isIdentical = (a,b) -> a is b
 
-# Lake(stream|iterator)
+# Lake(iterable|asynciterable)
 
 An Async Iterator that behaves as a Readable Stream and supports Monadic Event
 Stream patterns, using only native operators.
@@ -12,12 +12,12 @@ Stream patterns, using only native operators.
 
       constructor: (@stream) ->
 
-It can be used as a proxy for the original (sync or async) iterator, turning it
+It can be used as a proxy for the original (sync or async) iterable, turning it
 into an async iterator.
 
       next: -> await @stream.next()
 
-It also is an async iterable, which means it can be turned into a stream.
+It also is an async iterable, which means it can be turned back into a stream.
 
       [Symbol.asyncIterator]: -> new LakeAsyncIterator this
 
@@ -446,7 +446,7 @@ Builds a stream that stops immediately with the provided error.
 
     export throwError = (e) -> Lake ThrowError e
 
-# from(iterable)
+# from(iterable|asynciterable)
 
 From any iterable, generates a new "Lake" stream (described above).
 
