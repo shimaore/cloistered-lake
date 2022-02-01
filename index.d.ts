@@ -11,6 +11,7 @@ declare class LakeAsyncIterator<T> {
   concurrentMap<U>( atmost: number, f: (v:T) => P<U> ): LakeAsyncIterator<U>
   constant(v:T): LakeAsyncIterator<T>
   filter(f: (v:T) => P<boolean>): LakeAsyncIterator<T>
+  filter<U extends T>(predicate: (value:T) => value is U): LakeAsyncIterator<U>
   skipRepeast(isEqual?: (a:T,b:T) => P<T>): LakeAsyncIterator<T>
   first(n:number|bigint): LakeAsyncIterator<T>
   take(n:number|bigint): LakeAsyncIterator<T>
