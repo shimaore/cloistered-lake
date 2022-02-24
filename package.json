@@ -9,7 +9,8 @@
     "build": "coffee -b -l -p index.coffee.md > index.mjs",
     "build:cjs": "esbuild --outfile=index.cjs index.mjs --format=cjs",
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
-    "test": "ava --verbose test.mjs"
+    "test": "ava --verbose test.mjs",
+    "test:ts": "cd test-ts && yarn && yarn test"
   },
   "version": "1.2.9",
   "description": "functional async generators toolbox",

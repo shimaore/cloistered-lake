@@ -1,4 +1,4 @@
-var Always, BigNaturals, ConcurrentMap, Empty, From, LakeAsyncIterator, Merge, Now, Periodic, ThrowError, concurrentize, isIdentical, mergeArray;
+var Always, BigNaturals, ConcurrentMap, Empty, From, LakeAsyncIterator, Merge, Now, Periodic, ThrowError, concurrentMap, concurrentize, isIdentical, mergeArray;
 
 export var sleep = function(timeout, value = void 0) {
   return new Promise(function(resolve) {
@@ -454,14 +454,20 @@ ConcurrentMap = async function*(stream, atmost, fun) {
   }
 };
 
-export var concurrentMap = function(stream, atmost, fun) {
+concurrentMap = function(stream, atmost, fun) {
   return Lake(ConcurrentMap(stream, atmost, fun));
 };
 
 // # empty()
 
 // Builds a stream that finishes immediately.
-Empty = function() {};
+Empty = async function*() {
+  var ref, value;
+  ref = [];
+  for await (value of ref) {
+    yield value;
+  }
+};
 
 export var empty = function() {
   return Lake(Empty());

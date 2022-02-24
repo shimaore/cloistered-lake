@@ -1,15 +1,13 @@
-import {Lake} from '..'
+import {Lake,bigNaturals,empty,merge,from,sleep} from '..'
 Lake( process.stdin )
 import {pipeline} from 'stream'
 import * as fs from 'fs'
-import {bigNaturals} from '..'
 pipeline(
   bigNaturals().skip(1).map( x => x*x ).first(1000).map( x => `${x}\n` ),
   // This will create a file containing the first thousand squares
   fs.createWriteStream('thousand-squares.txt'),
   console.error
 )
-import {merge,from} from '..'
 const BigIntegers = merge(
   // will enumerate 1, 2, 3, 4, …
   bigNaturals().skip(1),
@@ -37,7 +35,6 @@ test('Compute the sum of the first 1000 squares', async t => {
     .reduce(Sum, 0n)
   )
 })
-import {sleep} from '..'
 const squareMicroService = async (x:bigint) => {
   await sleep(1)
   return x*x
@@ -71,4 +68,8 @@ test('Retrieve the 14th BigInt', async t => {
     .first(14)
     .last()
   )
+})
+test('Enumerates empty', async t => {
+  await empty().concurrentMap(10, () => true ).run()
+  t.pass()
 })

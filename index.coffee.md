@@ -377,13 +377,15 @@ The stream will fail if any of the Promises fail.
         yield value
       return
 
-    export concurrentMap = (stream,atmost,fun) -> Lake ConcurrentMap stream, atmost, fun
+    concurrentMap = (stream,atmost,fun) -> Lake ConcurrentMap stream, atmost, fun
 
 # empty()
 
 Builds a stream that finishes immediately.
 
     Empty = ->
+      for await value from []
+        yield value
       return
 
     export empty = -> Lake Empty()

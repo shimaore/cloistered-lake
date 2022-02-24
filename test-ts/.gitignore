@@ -1,0 +1,5 @@
+node_modules/
+test.js
+test.mjs
+thousand-squares.txt
+yarn-error.log

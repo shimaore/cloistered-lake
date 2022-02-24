@@ -3,7 +3,6 @@
     "lib": ["es2021"],
     "target":"es2021",
     "strict": true,
-    "moduleResolution": "node",
-    "noEmit": true
+    "moduleResolution": "node"
   }
 }

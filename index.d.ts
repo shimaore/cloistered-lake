@@ -31,7 +31,6 @@ declare class LakeAsyncIterator<T> {
 export function sleep<T>(timeout: number, value?: T): Promise<T>;
 export function Lake<T>(stream: I<T>): LakeAsyncIterator<T>;
 export function merge(...streams: any[]): any;
-export function concurrentMap(stream: any, atmost: any, fun: any): any;
 export function empty<T>(): LakeAsyncIterator<T>;
 export function always<T>(): LakeAsyncIterator<T>;
 export function bigNaturals(): LakeAsyncIterator<bigint>;

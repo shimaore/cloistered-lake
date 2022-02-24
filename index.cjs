@@ -25,7 +25,6 @@ __export(cloistered_lake_exports, {
   Lake: () => Lake,
   always: () => always,
   bigNaturals: () => bigNaturals,
-  concurrentMap: () => concurrentMap,
   empty: () => empty,
   equals: () => equals,
   from: () => from,
@@ -35,7 +34,7 @@ __export(cloistered_lake_exports, {
   sleep: () => sleep,
   throwError: () => throwError
 });
-var Always, BigNaturals, ConcurrentMap, Empty, From, LakeAsyncIterator, Merge, Now, Periodic, ThrowError, concurrentize, isIdentical, mergeArray;
+var Always, BigNaturals, ConcurrentMap, Empty, From, LakeAsyncIterator, Merge, Now, Periodic, ThrowError, concurrentMap, concurrentize, isIdentical, mergeArray;
 var sleep = function(timeout, value = void 0) {
   return new Promise(function(resolve) {
     return setTimeout(function() {
@@ -341,10 +340,15 @@ ConcurrentMap = async function* (stream, atmost, fun) {
     yield value;
   }
 };
-var concurrentMap = function(stream, atmost, fun) {
+concurrentMap = function(stream, atmost, fun) {
   return Lake(ConcurrentMap(stream, atmost, fun));
 };
-Empty = function() {
+Empty = async function* () {
+  var ref, value;
+  ref = [];
+  for await (value of ref) {
+    yield value;
+  }
 };
 var empty = function() {
   return Lake(Empty());

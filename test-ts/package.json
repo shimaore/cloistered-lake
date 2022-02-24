@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "tsc"
+    "test": "tsc && sed -e 's/\\.\\./..\\/index.mjs/' test.js > test.mjs && ava test.mjs"
   },
   "devDependencies": {
     "@types/node": "^17.0.10",
