@@ -73,3 +73,11 @@ test('Enumerates empty', async t => {
   await empty().concurrentMap(10, () => true ).run()
   t.pass()
 })
+test('Filter the 14th BigInt', async t => {
+  const stream : AsyncIterable<bigint> =
+    bigNaturals()
+    .skip(1) // skip 0
+    .first(14)
+    .filter<bigint>( (x): x is bigint => x !== undefined )
+  t.is(14n as bigint | undefined, await from(stream).last())
+})

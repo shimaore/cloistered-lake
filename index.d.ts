@@ -4,7 +4,7 @@ type P<T> = Promise<T> | T
 declare class LakeAsyncIterator<T> {
   constructor(stream:I<T>);
   // is an Async Generator
-  next(): Promise<{ done: boolean, value: T }>;
+  next(): Promise<{ done: false | undefined, value: T }>;
   // is an AsyncIterable
   [Symbol.asyncIterator](): LakeAsyncIterator<T>
   map<U>( f: (v:T) => P<U> ): LakeAsyncIterator<U>
