@@ -12,7 +12,7 @@
     "test": "ava --verbose test.mjs",
     "test:ts": "cd test-ts && yarn && yarn test"
   },
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "functional async generators toolbox",
   "type": "module",
   "module": "index.mjs",
