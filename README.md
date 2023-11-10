@@ -15,8 +15,8 @@ Compatibility with Node.js streams
 
 These streams are compatible with Node.js' [Readable Stream API](https://nodejs.org/dist/latest-v15.x/docs/api/stream.html#stream_readable_symbol_asynciterator):
 
-    import {Lake} from '@shimaore/lake'
-    Lake( process.stdin )
+    import {from} from '@shimaore/lake'
+    from( process.stdin )
 
 and with Node.js' Writeable Stream API, using [`pipeline`](https://nodejs.org/dist/latest/docs/api/stream.html#stream_stream_pipeline_streams_callback) or [`Readable.from`](https://nodejs.org/dist/latest/docs/api/stream.html#stream_stream_readable_from_iterable_options):
 
@@ -36,7 +36,7 @@ Fluent API, Merging streams
 Some basic data streaming example, first one building integers (positive and
 negative) from naturals (positive only):
 
-    import {merge,from} from '@shimaore/lake'
+    import {merge} from '@shimaore/lake'
 
 Merging streams is done in approximate round-robin fashion; this prevents one
 stream from eagerly blocking other stream.

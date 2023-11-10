@@ -1,23 +1,23 @@
 {
   "name": "@shimaore/lake",
   "devDependencies": {
-    "ava": "^4.0.0",
-    "coffeescript": "^2.6.1",
-    "esbuild": "^0.14.11"
+    "ava": "5.3.1",
+    "coffeescript": "2.7.0",
+    "esbuild": "0.19.5",
+    "typescript": "5.2.2"
   },
   "scripts": {
-    "build": "coffee -b -l -p index.coffee.md > index.mjs",
+    "build": "tsc --strict --esModuleInterop --target ES2021 --moduleResolution Node index.ts && mv index.js index.mjs",
     "build:cjs": "esbuild --outfile=index.cjs index.mjs --format=cjs",
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs",
     "test:ts": "cd test-ts && yarn && yarn test"
   },
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "functional async generators toolbox",
   "type": "module",
   "module": "index.mjs",
   "main": "index.cjs",
-  "types": "index.d.ts",
   "repository": "gitlab.com/shimaore/cloistered-lake",
   "author": "Stephane Alnet <stephane@shimaore.net>",
   "license": "MIT"

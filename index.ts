@@ -1,4 +1,4 @@
-function sleep(timeout: number) : Promise<void> {
+export function sleep(timeout: number) : Promise<void> {
   return new Promise(function(resolve) {
     setTimeout(resolve, timeout)
   })
@@ -8,41 +8,56 @@ const isIdentical = function<T>(a:T, b:T) : P<boolean> {
   return a === b;
 }
 
-// # Lake(iterable|asynciterable)
-
-type I<T> = AsyncIterable<T> | Iterable<T>
+type I<T> = AsyncIterator<T> | Iterator<T> | AsyncIterable<T> | Iterable<T>
 type P<T> = Promise<T> | T
 
 // An Async Iterator that behaves as a Readable Stream and supports Monadic Event
 // Stream patterns, using only native operators.
-export class LakeAsyncIterator<T> {
-  constructor(private readonly stream: I<T>) {}
+export class LakeAsyncIterator<T> implements AsyncIterable<T>, AsyncIterator<T> {
+  private readonly iterator: AsyncIterator<T> | Iterator<T>
 
-  // is an Async Generator
-  // It can be used as a proxy for the original (sync or async) iterable, turning it
-  // into an async iterator.
-  async next(): Promise<{ done: false | undefined, value: T }> {
-    // FIXME const iterator = this.stream[Symbol.asyncIterator]() ?? this.stream
-    const iterator : any = this.stream
-    return await iterator.next()
+  constructor(stream: I<T>) {
+    // AsyncIterable
+    if (Symbol.asyncIterator in stream && typeof stream[Symbol.asyncIterator] === 'function') {
+      this.iterator = stream[Symbol.asyncIterator]()
+      return
+    }
+    // Iterable
+    if (Symbol.iterator in stream && typeof stream[Symbol.iterator] === 'function') {
+      this.iterator = stream[Symbol.iterator]()
+      return
+    }
+    // AsyncIterator or Iterator
+    if ('next' in stream && typeof stream.next === 'function') {
+      this.iterator = stream
+      return
+    }
+    throw new Error('Stream is not an AsyncIterable, an Iterable, an AsyncIterator, nor an Iterator')
   }
 
-  // is an AsyncIterable
+  // It is an Async Generator
+  // It can be used as a proxy for the original (sync or async) iterable, turning it into an async iterator.
+  async next(): Promise<{ done?: boolean, value: T }> {
+    return await this.iterator.next()
+  }
+
+  // It is an AsyncIterable
   // It also is an async iterable, which means it can be turned back into a stream.
   [Symbol.asyncIterator](): LakeAsyncIterator<T> {
-    return new LakeAsyncIterator(this);
+    return this;
   }
 
   // ## .map(transform)
 
-    // Applies a (sync or async) transformation function to each element in the stream.
+  // Applies a (sync or async) transformation function to each element in the stream.
   map<U>(f: (v:T) => P<U>): LakeAsyncIterator<U> {
-    const stream = this.stream
-    return Lake((async function*() {
+    const stream = this
+    const generator = async function*() {
       for await (const chunk of stream) {
         yield f(chunk);
       }
-    })());
+   }
+    return from(generator());
   }
 
   // ## .concurrentMap(atmost,transform)
@@ -53,7 +68,7 @@ export class LakeAsyncIterator<T> {
   // The ordering of the elements is not guaranteed, since it will depend on the
   // evaluation time of the async `transform` function.
   concurrentMap<U>(atmost: number, fun: (v:T) => P<U>): LakeAsyncIterator<U> {
-    return concurrentMap(this.stream, atmost, fun);
+    return concurrentMap(this, atmost, fun);
   }
 
   // ## .constant(value)
@@ -61,7 +76,7 @@ export class LakeAsyncIterator<T> {
   // Transform this stream into a stream that produces the `value` for each element
   // the original stream produces.
   constant(v:T): LakeAsyncIterator<T> {
-    return this.map(function() { return v; });
+    return this.map(() => v)
   }
 
   // ## .filter(fun)
@@ -71,14 +86,15 @@ export class LakeAsyncIterator<T> {
   filter(predicate: (v:T) => P<boolean>): LakeAsyncIterator<T>
   filter<U>(predicate: (value:unknown) => value is U): LakeAsyncIterator<U>
   {
-    const stream = this.stream
-    return Lake((async function*() {
+    const stream = this
+    const generator = async function*() {
       for await (const chunk of stream) {
         if (await predicate(chunk)) {
           yield chunk as U;
         }
       }
-    })());
+    }
+    return from(generator());
   }
 
   // ## .skipRepeats()
@@ -90,17 +106,18 @@ export class LakeAsyncIterator<T> {
   // using a different criteria than `===`; it should return `true` if its two
   // arguments are considered identical.
   skipRepeats(eq?: (a:T,b:T|undefined) => P<boolean>): LakeAsyncIterator<T> {
-    eq ??= isIdentical
-    const stream = this.stream
-    return Lake((async function*() {
+    const equals : (a:T,b:T|undefined) => P<boolean> = eq ?? isIdentical
+    const stream = this
+    const generator = async function*() {
       var last
       for await (const chunk of stream) {
-        if (!(await eq(chunk, last))) {
+        if (!(await equals(chunk, last))) {
           yield chunk;
         }
         last = chunk;
       }
-    })());
+    }
+    return from(generator())
   }
 
   // ## .first(n)
@@ -110,10 +127,10 @@ export class LakeAsyncIterator<T> {
 
   // BigInt are used internally; `n` might be a integer or a BigInt.
   first(max:number|bigint): LakeAsyncIterator<T> {
-    const stream = this.stream
+    const stream = this
     var n = 0n;
     max = BigInt(max);
-    return Lake((async function*() {
+    const generator = async function*() {
       if (n >= max) {
         return;
       }
@@ -123,7 +140,8 @@ export class LakeAsyncIterator<T> {
         }
         yield chunk;
       }
-    })());
+    }
+    return from(generator());
   }
 
   take(n:number|bigint): LakeAsyncIterator<T> {
@@ -137,9 +155,9 @@ export class LakeAsyncIterator<T> {
 
   // BigInt are used internally; `n` might be a integer or a BigInt.
   skip(n:number|bigint): LakeAsyncIterator<T> {
-    const stream = this.stream
+    const stream = this
     n = BigInt(n);
-    return Lake((async function*() {
+    const generator = async function*() {
       if (n <= 0) {
         return;
       }
@@ -148,29 +166,32 @@ export class LakeAsyncIterator<T> {
           yield chunk;
         }
       }
-    })());
+    }
+    return from(generator());
   }
 
   // ## .delay(timeout)
 
   // Insert a delay of `timeout` milliseconds between each received element.
   delay(timeout:number): LakeAsyncIterator<T> {
-    const stream = this.stream
-    return Lake((async function*() {
+    const stream = this
+    const generator = async function*() {
       for await (const chunk of stream) {
         await sleep(timeout);
         yield chunk;
       }
-    })());
+    }
+    return from(generator());
   }
 
   // ## .startWith(otherStream)
 
   // Concatenates the otherStream with this stream.
   startWith(another: I<T>): LakeAsyncIterator<T> {
-    const stream = this.stream
-    return Lake((async function*() {
-      for await (const chunk of another) {
+    const stream = this
+    const otherStream = new LakeAsyncIterator(another)
+    return from((async function*() {
+      for await (const chunk of otherStream) {
         yield chunk;
       }
       for await (const chunk of stream) {
@@ -183,12 +204,13 @@ export class LakeAsyncIterator<T> {
 
   // Contatenates this stream then the otherStream.
   continueWith(another: I<T>): LakeAsyncIterator<T> {
-    const stream = this.stream
-    return Lake((async function*() {
+    const stream = this
+    const otherStream = new LakeAsyncIterator(another)
+    return from((async function*() {
       for await (const chunk of stream) {
         yield chunk;
       }
-      for await (const chunk of another) {
+      for await (const chunk of otherStream) {
         yield chunk;
       }
     })());
@@ -201,8 +223,8 @@ export class LakeAsyncIterator<T> {
   // The stream is unmodified but might be delayed by the execution time of `func`.
   // The stream will fail if `func` fails or rejects.
   forEach(f: (v:T) => P<void>): LakeAsyncIterator<T> {
-    const stream = this.stream
-    return Lake((async function*() {
+    const stream = this
+    return from((async function*() {
       for await (const chunk of stream) {
         await f(chunk);
         yield chunk;
@@ -220,8 +242,8 @@ export class LakeAsyncIterator<T> {
 
   // Elements of this stream are dropped until `funs` provides a function.
   ap<U>(funs:I<(a:T) => P<U>>): LakeAsyncIterator<U> {
-    const stream = this.stream
-    return Lake((async function*() {
+    const stream = this
+    return from((async function*() {
       var f = null;
       const ref = mergeArray([stream, funs]);
       for await (const x of ref) {
@@ -243,8 +265,8 @@ export class LakeAsyncIterator<T> {
 
   // Outputs the data from the latest stream in this stream-of-streams.
   switchLatest(): LakeAsyncIterator<T> {
-    const stream = this.stream
-    return Lake((async function*() {
+    const stream = this
+    return from((async function*() {
       // FIXME any
       var chunk : any, index : number;
       // FIXME any
@@ -266,7 +288,7 @@ export class LakeAsyncIterator<T> {
   // Using a (sync or async) `reducer` function which accepts the latest value of the
   // accumulator and a new value, returns the final value of the accumulator.
   async reduce<U>(f: (acc:U,value:T) => P<U>, a: U): Promise<U> {
-    const stream = this.stream
+    const stream = this
     for await (const chunk of stream) {
       a = (await f(a, chunk));
     }
@@ -279,7 +301,7 @@ export class LakeAsyncIterator<T> {
 
   // The Promise will reject if the stream fails for any reason.
   async run(): Promise<void> {
-    const stream = this.stream
+    const stream = this
     for await (const chunk of stream) {
       false;
     }
@@ -290,7 +312,7 @@ export class LakeAsyncIterator<T> {
   // Consumes this stream, returning its last value (or undefined if no value was
   // produced) inside a Promise.
   async last(): Promise<T|undefined> {
-    const stream = this.stream
+    const stream = this
     var last = undefined;
     for await (const chunk of stream) {
       last = chunk;
@@ -311,11 +333,7 @@ export class LakeAsyncIterator<T> {
     return equals(this, otherStream, eq)
   }
 
-};
-
-export function Lake<T>(stream: I<T>): LakeAsyncIterator<T> {
-  return new LakeAsyncIterator(stream);
-};
+}
 
 // # Merge stream
 
@@ -368,7 +386,7 @@ const mergeArray = async function*(streams: I<any>[]) : AsyncGenerator<[any,numb
       srcs.unshift(nextSrc);
     }
   }
-};
+}
 
 const Merge = async function*(...streams : I<any>[]) : AsyncGenerator<any,void,unknown> {
   const ref = mergeArray(streams);
@@ -376,10 +394,10 @@ const Merge = async function*(...streams : I<any>[]) : AsyncGenerator<any,void,u
     const [chunk] = x;
     yield chunk;
   }
-};
+}
 
 export const merge = function(...streams: any[]) {
-  return Lake(Merge(...streams));
+  return from(Merge(...streams));
 }
 
 // ## Concurrent execution
@@ -427,7 +445,7 @@ const concurrentize = async function*<T>(stream: any, atmost:number, fun:(x:any)
       yield pick.result.value;
     }
   }
-};
+}
 
 const ConcurrentMap = async function*(stream:any, atmost:number, fun:any) {
   const ref = concurrentize(stream, atmost, fun);
@@ -437,7 +455,7 @@ const ConcurrentMap = async function*(stream:any, atmost:number, fun:any) {
 }
 
 const concurrentMap = function(stream:any, atmost:number, fun:any) {
-  return Lake(ConcurrentMap(stream, atmost, fun));
+  return from(ConcurrentMap(stream, atmost, fun));
 }
 
 // # empty()
@@ -448,11 +466,11 @@ const Empty = async function*<T>() {
   for await (const value of ref) {
     yield value;
   }
-};
+}
 
 export function empty<T>(): LakeAsyncIterator<T> {
-  return Lake(Empty())
-};
+  return from(Empty())
+}
 
 // # always(v)
 
@@ -461,11 +479,11 @@ const Always = function*<T>(v:T) {
   while (true) {
     yield v;
   }
-};
+}
 
 export function always<T>(v:T): LakeAsyncIterator<T> {
-  return Lake(Always(v));
-};
+  return from(Always(v));
+}
 
 // # bigNaturals()
 
@@ -476,11 +494,11 @@ const BigNaturals = function*() {
   while (true) {
     yield n++;
   }
-};
+}
 
 export function bigNaturals(): LakeAsyncIterator<bigint> {
-  return Lake(BigNaturals())
-};
+  return from(BigNaturals())
+}
 
 // # periodic(period)
 // # periodic(period,value)
@@ -488,39 +506,39 @@ export function bigNaturals(): LakeAsyncIterator<bigint> {
 // Builds a stream that generates a new element with the provided value (or
 // undefined if no value is provided) and generates similarly every `period`
 // milliseconds thereafter.
-const Periodic = async function*<T>(period:number, value:T) {
+const Periodic = async function*<T>(period:number, value:T) : AsyncGenerator<T> {
   while (true) {
     yield value;
     await sleep(period);
   }
-};
+}
 
-export function periodic<T> (period:number, value?: T = undefined): LakeAsyncIterator<T> {
-  return Lake(Periodic(period));
+export function periodic<undefined>(period:number, value?: never): LakeAsyncIterator<undefined>
+export function periodic<T> (period:number, value: T): LakeAsyncIterator<T> {
+  return from(Periodic(period,value));
 };
 
 // # now(v)
 
 // Builds a stream that only produces once, with the value provided.
-const Now = function*(v) {
+const Now = function*<T>(v:T) : Generator<T> {
   return (yield v);
 };
 
 export function now<T>(v:T): LakeAsyncIterator<T> {
-  return Lake(Now(v));
+  return from(Now(v));
 };
 
 // # throwError(e)
 
 // Builds a stream that stops immediately with the provided error.
-const ThrowError = function*(error) {
-  throw error;
-  yield undefined;
-};
+const ThrowError = async function*<T,E extends Error>(error:E) : AsyncGenerator<T> {
+  return Promise.reject(error)
+}
 
-export function throwError<T,E>(e:E): LakeAsyncIterator<T> {
-  return Lake(ThrowError(e));
-};
+export function throwError<T,E extends Error>(e:E): LakeAsyncIterator<T> {
+  return from(ThrowError(e));
+}
 
 // # from(iterable|asynciterable)
 
@@ -531,15 +549,10 @@ export function throwError<T,E>(e:E): LakeAsyncIterator<T> {
 
 // Use Node.js' [`events.on(emitter,eventName)`](https://nodejs.org/dist/latest/docs/api/events.html#eventsonemitter-eventname-options)
 // to create an AsyncIterator from an event-emitter.
-const From = async function*(a) {
-  for await (const v of a) {
-    yield v;
-  }
-};
 
 export function from<T>(a: I<T>): LakeAsyncIterator<T> {
-  return Lake(From(a));
-};
+  return new LakeAsyncIterator(a);
+}
 
 // # equals(streamA,streamB)
 // # equals(streamA,streamB,isEqual)
@@ -549,10 +562,13 @@ export function from<T>(a: I<T>): LakeAsyncIterator<T> {
 
 // The optional (sync or async) `isEqual` function should return true to indicate
 // that its two arguments are considered identical.
-export async function equals<T>(A: I<T>, B: I<T>, eq?: (a:T,b:T) => P<boolean> = isIdentical): Promise<boolean> {
+export async function equals<T>(A: I<T>, B: I<T>, eq: (a:T,b:T) => P<boolean>): Promise<boolean> {
+  const equals = eq ?? isIdentical
+  const lakeA = from(A)
+  const lakeB = from(B)
   while (true) {
-    const a = (await A.next());
-    const b = (await B.next());
+    const a = (await lakeA.next());
+    const b = (await lakeB.next());
     if (a.done && b.done) {
       return true;
     }

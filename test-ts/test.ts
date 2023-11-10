@@ -1,5 +1,5 @@
-import {Lake,bigNaturals,empty,merge,from,sleep} from '..'
-Lake( process.stdin )
+import {from,bigNaturals,empty,merge,sleep} from '..'
+from( process.stdin )
 import {pipeline} from 'stream'
 import * as fs from 'fs'
 pipeline(
@@ -78,6 +78,6 @@ test('Filter the 14th BigInt', async t => {
     bigNaturals()
     .skip(1) // skip 0
     .first(14)
-    .filter<bigint>( (x): x is bigint => x !== undefined )
+    .filter( (x): x is bigint => x !== undefined )
   t.is(14n as bigint | undefined, await from(stream).last())
 })
