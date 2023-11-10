@@ -13,11 +13,15 @@
     "test": "ava --verbose test.mjs",
     "test:ts": "cd test-ts && yarn && yarn test"
   },
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "functional async generators toolbox",
   "type": "module",
   "module": "index.mjs",
   "main": "index.cjs",
+  "exports": {
+    "require": "./index.cjs",
+    "import": "./index.mjs"
+  },
   "repository": "gitlab.com/shimaore/cloistered-lake",
   "author": "Stephane Alnet <stephane@shimaore.net>",
   "license": "MIT"
