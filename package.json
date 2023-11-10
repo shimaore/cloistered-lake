@@ -1,5 +1,6 @@
 {
   "name": "@shimaore/lake",
+  "version": "3.0.2",
   "devDependencies": {
     "ava": "5.3.1",
     "coffeescript": "2.7.0",
@@ -7,17 +8,17 @@
     "typescript": "5.2.2"
   },
   "scripts": {
-    "build": "tsc --strict --esModuleInterop --target ES2021 --moduleResolution Node index.ts && mv index.js index.mjs",
+    "build": "tsc --strict --esModuleInterop --target ES2021 --moduleResolution Node --declaration true --sourceMap true --declarationMap true index.ts && mv index.js index.mjs && mv index.js.map index.mjs.map",
     "build:cjs": "esbuild --outfile=index.cjs index.mjs --format=cjs",
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs",
     "test:ts": "cd test-ts && yarn && yarn test"
   },
-  "version": "3.0.1",
   "description": "functional async generators toolbox",
   "type": "module",
   "module": "index.mjs",
   "main": "index.cjs",
+  "types": "index.d.ts",
   "exports": {
     "require": "./index.cjs",
     "import": "./index.mjs"

@@ -488,3 +488,4 @@ export async function equals(A, B, eq) {
         }
     }
 }
+//# sourceMappingURL=index.js.map
