@@ -4,10 +4,7 @@ type P<T> = Promise<T> | T;
 export declare class LakeAsyncIterator<T> implements AsyncIterable<T>, AsyncIterator<T> {
     private readonly iterator;
     constructor(stream: I<T>);
-    next(): Promise<{
-        done?: boolean;
-        value: T;
-    }>;
+    next(): Promise<IteratorResult<T, any>>;
     [Symbol.asyncIterator](): LakeAsyncIterator<T>;
     map<U>(f: (v: T) => P<U>): LakeAsyncIterator<U>;
     concurrentMap<U>(atmost: number, fun: (v: T) => P<U>): LakeAsyncIterator<U>;

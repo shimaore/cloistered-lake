@@ -3,3 +3,6 @@ test.js
 test.mjs
 thousand-squares.txt
 yarn-error.log
+test.d.ts
+test.d.ts.map
+test.js.map

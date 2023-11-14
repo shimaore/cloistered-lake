@@ -272,7 +272,7 @@ export class LakeAsyncIterator {
     // The optional `isEqual` (sync or async) comparison function should return true if
     // its two arguments are considered equal.
     equals(otherStream, eq) {
-        eq ??= isIdentical;
+        eq ?? (eq = isIdentical);
         return equals(this, otherStream, eq);
     }
 }

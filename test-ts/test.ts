@@ -1,4 +1,4 @@
-import {from,bigNaturals,empty,merge,sleep} from '..'
+import {from,bigNaturals,empty,merge,sleep} from '@shimaore/lake'
 from( process.stdin )
 import {pipeline} from 'stream'
 import * as fs from 'fs'

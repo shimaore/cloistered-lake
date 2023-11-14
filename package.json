@@ -2,14 +2,15 @@
   "name": "@shimaore/lake",
   "version": "3.0.2",
   "devDependencies": {
+    "@types/node": "^20.9.0",
     "ava": "5.3.1",
     "coffeescript": "2.7.0",
     "esbuild": "0.19.5",
     "typescript": "5.2.2"
   },
   "scripts": {
-    "build": "tsc --strict --esModuleInterop --target ES2021 --moduleResolution Node --declaration true --sourceMap true --declarationMap true index.ts && mv index.js index.mjs && mv index.js.map index.mjs.map",
-    "build:cjs": "esbuild --outfile=index.cjs index.mjs --format=cjs",
+    "build": "tsc && mv index.js index.mjs && mv index.js.map index.mjs.map",
+    "build:cjs": "esbuild --outfile=index.cjs index.ts --format=cjs",
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs",
     "test:ts": "cd test-ts && yarn && yarn test"
@@ -21,7 +22,8 @@
   "types": "index.d.ts",
   "exports": {
     "require": "./index.cjs",
-    "import": "./index.mjs"
+    "import": "./index.mjs",
+    "types": "./index.d.ts"
   },
   "repository": "gitlab.com/shimaore/cloistered-lake",
   "author": "Stephane Alnet <stephane@shimaore.net>",

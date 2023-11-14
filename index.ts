@@ -37,7 +37,7 @@ export class LakeAsyncIterator<T> implements AsyncIterable<T>, AsyncIterator<T> 
 
   // It is an Async Generator
   // It can be used as a proxy for the original (sync or async) iterable, turning it into an async iterator.
-  async next(): Promise<{ done?: boolean, value: T }> {
+  async next(): Promise<IteratorResult<T, any>> {
     return await this.iterator.next()
   }
 
