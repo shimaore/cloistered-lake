@@ -7,3 +7,8 @@ thousand-squares.txt
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+index.cjs
+index.d.ts
+index.d.ts.map
+index.mjs
+index.mjs.map
