@@ -2,15 +2,14 @@
   "name": "@shimaore/lake",
   "version": "3.0.3",
   "devDependencies": {
-    "@types/node": "^20.9.0",
-    "ava": "5.3.1",
+    "@types/node": "20.10.5",
+    "ava": "6.0.1",
     "coffeescript": "2.7.0",
-    "esbuild": "0.19.5",
-    "typescript": "5.2.2"
+    "esbuild": "0.19.10",
+    "typescript": "5.3.3"
   },
   "scripts": {
-    "build": "tsc && mv index.js index.mjs && mv index.js.map index.mjs.map",
-    "build:cjs": "esbuild --outfile=index.cjs index.ts --format=cjs",
+    "build": "tsc && node build.mjs",
     "pretest": "yarn build && egrep '^    ' README.md | sed -e 's/^    //' | sed -e 's:@shimaore/lake:./index.mjs:' > test.mjs",
     "test": "ava --verbose test.mjs",
     "test:ts": "cd test-ts && yarn && yarn test"
@@ -27,5 +26,6 @@
   },
   "repository": "gitlab.com/shimaore/cloistered-lake",
   "author": "Stephane Alnet <stephane@shimaore.net>",
-  "license": "MIT"
+  "license": "MIT",
+  "packageManager": "yarn@4.0.2"
 }

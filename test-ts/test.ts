@@ -1,4 +1,4 @@
-import {from,bigNaturals,empty,merge,sleep} from '@shimaore/lake'
+import {from,bigNaturals,empty,merge,sleep,combine} from '@shimaore/lake'
 from( process.stdin )
 import {pipeline} from 'stream'
 import * as fs from 'fs'
@@ -81,3 +81,17 @@ test('Filter the 14th BigInt', async t => {
     .filter( (x): x is bigint => x !== undefined )
   t.is(14n as bigint | undefined, await from(stream).last())
 })
+
+test('If you take the difference between consecutive square numbers, you generate the odd numbers.', async t => {
+      const squaresFromZero = bigNaturals().map( x => x*x )
+      const squaresFromOne = bigNaturals().skip(1).map( x => x*x )
+      const differences = combine(squaresFromZero,squaresFromOne).map( ([a,b]) => b-a )
+      const oddNaturals = bigNaturals().map( x => 2n*x+1n )
+      t.true(await
+
+        oddNaturals
+        .take(1000)
+        .equals(differences.take(1000))
+
+      )
+    })

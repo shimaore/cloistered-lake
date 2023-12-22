@@ -138,8 +138,8 @@ API
 
 # Lake(iterable|asynciterable)
 
-An Async Iterator that behaves as a Readable Stream and supports Monadic Event
-Stream patterns, using only native operators.
+An Async Iterator and Async Iterable that behaves as a Readable Stream and
+supports Monadic Event Stream patterns, using only native operators.
 
 It can be used as a proxy for the original (sync or async) iterable, turning it
 into an async iterator.
@@ -302,3 +302,19 @@ whether the two suites are identical.
 
 The optional (sync or async) `isEqual` function should return true to indicate
 that its two arguments are considered identical.
+
+    import {combine} from '@shimaore/lake'
+
+    test('If you take the difference between consecutive square numbers, you generate the odd numbers.', async t => {
+      const squaresFromZero = bigNaturals().map( x => x*x )
+      const squaresFromOne = bigNaturals().skip(1).map( x => x*x )
+      const differences = combine(squaresFromZero,squaresFromOne).map( ([a,b]) => b-a )
+      const oddNaturals = bigNaturals().map( x => 2n*x+1n )
+      t.true(await
+
+        oddNaturals
+        .take(10000)
+        .equals(differences.take(10000))
+
+      )
+    })
